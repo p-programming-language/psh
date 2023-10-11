@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import { KEYWORDS as P_KEYWORDS, Lexer, Syntax, INTRINSIC_TYPES } from "./plang/src";
 
 enum Class {
@@ -24,27 +25,29 @@ const OPERATORS = [
   "'", '"', ".", ","
 ];
 
-
 const TAB = "&ThickSpace;";
 
 function extractLeadingWhitespaces(input: string): string {
-  const match = input.match(/\s+/);
+  const match = input.match(/^\s+/);
   return match ? match[0] : "";
 }
 
 function splitPreservingQuotes(input: string): string[] {
-  const parts = input.match(/"([^"]+)"|'([^']+)'\s*|[^'"\s]+/g);
+  let parts: any[] | null = input.match(/^\s+|"[^"]+"|'[^']+'|\S+/g);
+  if (parts)
+    parts = parts.map(part => /\s+/g.test(part) ? part : part.trim());
+
   return parts ?? [];
 }
 
 function highlightCodeBody(input: string): string {
   const lines = input.split("\n");
   const indentations = lines.map(line => extractLeadingWhitespaces(line));
-  const lineParts = lines.map(line => splitPreservingQuotes(line));
-  const htmlLines = lineParts.map(parts => parts.map(part => indentations[parts.indexOf(part)] + highlightText(part)).join(" "));
+  const lineParts = lines.map(line => splitPreservingQuotes(indentations[lines.indexOf(line)] + line));
+  const htmlLines = lineParts.map(parts => parts.map(part => /\s+/g.test(part) ? part : highlightText(part)).join(" "));
   return htmlLines
     .join("\n")
-    .replace(/  /g, TAB)
+    .replace(/    /g, TAB)
     .replace(/\t/g, TAB);
 }
 
@@ -86,4 +89,11 @@ function highlightText(line: string): string {
   return html.join("");
 }
 
-console.log(highlightCodeBody("int x = 1"));
+const [path] = process.argv.slice(2);
+if (!path) {
+  console.log("No file path provided");
+  process.exit(1);
+}
+
+const fileContents = readFileSync(path).toString();
+console.log(highlightCodeBody(fileContents));

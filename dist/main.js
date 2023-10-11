@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs_1 = require("fs");
 const src_1 = require("./plang/src");
 var Class;
 (function (Class) {
@@ -26,21 +27,23 @@ const OPERATORS = [
 ];
 const TAB = "&ThickSpace;";
 function extractLeadingWhitespaces(input) {
-    const match = input.match(/\s+/);
+    const match = input.match(/^\s+/);
     return match ? match[0] : "";
 }
 function splitPreservingQuotes(input) {
-    const parts = input.match(/"([^"]+)"|'([^']+)'\s*|[^'"\s]+/g);
+    let parts = input.match(/^\s+|"[^"]+"|'[^']+'|\S+/g);
+    if (parts)
+        parts = parts.map(part => /\s+/g.test(part) ? part : part.trim());
     return parts !== null && parts !== void 0 ? parts : [];
 }
 function highlightCodeBody(input) {
     const lines = input.split("\n");
     const indentations = lines.map(line => extractLeadingWhitespaces(line));
-    const lineParts = lines.map(line => splitPreservingQuotes(line));
-    const htmlLines = lineParts.map(parts => parts.map(part => indentations[parts.indexOf(part)] + highlightText(part)).join(" "));
+    const lineParts = lines.map(line => splitPreservingQuotes(indentations[lines.indexOf(line)] + line));
+    const htmlLines = lineParts.map(parts => parts.map(part => /\s+/g.test(part) ? part : highlightText(part)).join(" "));
     return htmlLines
         .join("\n")
-        .replace(/  /g, TAB)
+        .replace(/    /g, TAB)
         .replace(/\t/g, TAB);
 }
 function highlightText(line) {
@@ -78,4 +81,10 @@ function highlightText(line) {
     }
     return html.join("");
 }
-console.log(highlightCodeBody("int x = 1"));
+const [path] = process.argv.slice(2);
+if (!path) {
+    console.log("No file path provided");
+    process.exit(1);
+}
+const fileContents = (0, fs_1.readFileSync)(path).toString();
+console.log(highlightCodeBody(fileContents));
