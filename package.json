@@ -1,0 +1,41 @@
+{
+  "name": "psh",
+  "version": "1.0.0",
+  "description": "P syntax highlighter",
+  "main": "dist/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/p-programming-language/psh.git"
+  },
+  "keywords": [
+    "p",
+    "syntax",
+    "highlighting",
+    "generator"
+  ],
+  "author": "R-unic",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/p-programming-language/psh/issues"
+  },
+  "homepage": "https://github.com/p-programming-language/psh#readme",
+  "dependencies": {
+    "@types/express": "^4.17.19",
+    "@types/node": "^20.8.4",
+    "@types/sync-fetch": "^0.4.1",
+    "@types/to-camel-case": "^1.0.0",
+    "cmd-ts": "^0.13.0",
+    "colors.ts": "^1.0.20",
+    "express": "^4.18.2",
+    "readline-sync": "^1.4.10",
+    "sync-fetch": "^0.5.2",
+    "to-camel-case": "^1.0.0",
+    "tslib": "^2.6.2"
+  },
+  "devDependencies": {
+    "@types/readline-sync": "^1.4.5"
+  }
+}
